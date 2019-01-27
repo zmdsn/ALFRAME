@@ -1,2 +1,4 @@
 Archives/
 *.mat
+*.md.swp
+*.pyc
