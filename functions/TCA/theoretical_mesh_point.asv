@@ -1,0 +1,41 @@
+function [Alpha0,Phi10,Phi20,Beta0]=theoretical_mesh_point(R_half,BasicParameter)
+% theoretical_mesh_point.m              计算理论参考点的各个转动量
+% R_half                                输入分度圆半径
+% BasicParameter                        输入摆线轮的基本参数
+
+%先给摆线轮基本参数赋值
+zc=BasicParameter(1);
+zp=BasicParameter(2);
+rp=BasicParameter(3);
+a=BasicParameter(4);
+rrp=BasicParameter(5);
+d_rrp=BasicParameter(6);
+d_rp=BasicParameter(7);
+deta=BasicParameter(8);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+i_h=zp/zc;
+k1=a*zp/(rp-d_rp);
+
+
+%       摆线轮方程
+syms alfa real
+% 齿顶在最上关于y轴对称
+equa_c1=[((rp-d_rp)-(rrp+d_rrp)/sqrt(1+k1^2-2*k1*cos(zc*(alfa+pi))))*sin((1-i_h)*zc*(alfa+pi)-deta)+a/(rp-d_rp)*(rp-d_rp-zp*(rrp+d_rrp)/sqrt(1+k1^2-2*k1*cos(zc*(alfa+pi))))*sin(i_h*zc*(alfa+pi)+deta);
+         -(((rp-d_rp)-(rrp+d_rrp)/sqrt(1+k1^2-2*k1*cos(zc*(alfa+pi))))*cos((1-i_h)*zc*(alfa+pi)-deta)-a/(rp-d_rp)*(rp-d_rp-zp*(rrp+d_rrp)/sqrt(1+k1^2-2*k1*cos(zc*(alfa+pi))))*cos(i_h*zc*(alfa+pi)+deta));
+          0;
+          1]; 
+      
+R_sqrt=equa_c1(1)^2+equa_c1(2)^2;
+ff2=R_sqrt-R_half;
+
+%  建立方程,通过平方和关系，求解出alfa
+fid=fopen('solve_alpha0_equation.m','wt+');
+fprintf(fid,'%s\n','function p=solve_alpha0_equation(x)');
+fprintf(fid,'%s\n','alfa=x;');     
+fprintf(fid,'%s','p=');
+fprintf(fid,'%s\n',strcat(char(ff2),';'));
+fclose(fid);
+alpha00=[0,pi/zc];
+Alpha0=fzero('solve_alpha0_equation',alpha00);
+
+

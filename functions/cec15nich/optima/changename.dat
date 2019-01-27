@@ -1,0 +1,3 @@
+@echo off
+title 批量替换文件名
+ehco.
